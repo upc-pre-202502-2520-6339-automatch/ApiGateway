@@ -2,6 +2,7 @@ package com.gateway.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -13,7 +14,9 @@ import org.springframework.web.server.WebFilterChain;
  * Project: inncontrol-backend
  * Date: 7/1/25 @ 15:40
  */
-@Component
+
+
+@Configuration
 @Slf4j
 public class WebFluxConfiguration {
 

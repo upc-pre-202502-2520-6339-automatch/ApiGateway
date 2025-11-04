@@ -1,93 +1,61 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: api-gateway
-
   cloud:
     gateway:
-      server:
-        webflux:
-          discovery:
-            locator:
-              enabled: true
-              lower-case-service-id: true
-              route-id-prefix: ${spring.application.name}
-          routes:
-            - id: iam-service
-              uri: lb://iam-service
-              predicates:
-                - Path=/api/v1/authentication/**
-            - id: accommodation-service
-              uri: lb://accommodation-service
-              predicates:
-                - Path=/api/v1/room/**
-            - id: inncontrol-task-service
-              uri: lb://inncontrol-task-service
-              predicates:
-                - Path=/api/v1/tasks/**
-            - id: inventory-service
-              uri: lb://inventory-service
-              predicates:
-                - Path=/api/v1/inventory/**
-            - id: employees-service
-              uri: lb://employees-service
-              predicates:
-                - Path=/api/v1/employees/**
-            - id: notifications-service
-              uri: lb://notifications-service
-              predicates:
-                - Path=/ws/**
-            - id: profile-service
-              uri: lb://profile-service
-              predicates:
-                - Path=/api/v1/profiles/**
-            - id: communications-service
-              uri: lb://communications-service
-              predicates:
-                - Path=/api/v1/messages/**
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+          route-id-prefix: ${spring.application.name}
+      routes:
+        - id: iam-service
+          uri: lb://iam-service
+          predicates:
+            - Path=/api/v1/authentication/**
+        # agrega tus otros servicios cuando los registres en Eureka…
+      globalcors:
+        corsConfigurations:
+          "[/**]":
+            allowedOrigins: "*"
+            allowedMethods: "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+            allowedHeaders: "*"
+            maxAge: 3600
 
 eureka:
   instance:
-    instance-id: ${spring.application.name}:${random.value}
     prefer-ip-address: true
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka}
+    instance-id: ${spring.application.name}:${server.port}:${random.value}
+    status-page-url-path: /actuator/info
+    health-check-url-path: /actuator/health
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,gateway
+  endpoint:
+    health:
+      show-details: always
+info:
+  app:
+    name: ${spring.application.name}
+    version: ${project.version}
+
 
 springdoc:
   swagger-ui:
     urls:
-      - name: Task Service
-        url: /api/v1/tasks/docs
-      - name: Profiles Service
-        url: /api/v1/profiles/docs
-      - name: Inventory Service
-        url: /api/v1/inventory/docs
       - name: IAM Service
         url: /api/v1/authentication/docs
-      - name: Employee Service
-        url: /api/v1/employees/docs
-      - name: Communications Service
-        url: /api/v1/messages/docs
   api-docs:
     enabled: true
-
-info:
-  application:
-    name: Api Gateway
-    description: InnControl API Gateway
-    version: 1.0.0
-  maintainer: "contact@incontroll.pe"
-  java-version: ${java.version}
-  java-vendor: ${java.vendor}
 
 logging:
   level:
     root: INFO
-    org.springframework.web.reactive.function.client.ExchangeFunctions: DEBUG
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.cloud.gateway.filter: DEBUG
-    org.springframework.cloud.netflix.eureka: DEBUG
-    com.netflix.discovery: DEBUG
-    com.github.inncontrol: DEBUG
+    org.springframework.cloud.gateway: INFO
+    com.netflix.discovery: INFO
