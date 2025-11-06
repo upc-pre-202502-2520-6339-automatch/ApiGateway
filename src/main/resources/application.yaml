@@ -12,11 +12,23 @@ spring:
           lower-case-service-id: true
           route-id-prefix: ${spring.application.name}
       routes:
+        # IAM
         - id: iam-service
           uri: lb://iam-service
           predicates:
             - Path=/api/v1/authentication/**
-        # agrega tus otros servicios cuando los registres en Eureka…
+          #filters:
+            # si tu IAM NO usa context-path, no necesitas strip. Lo dejo como ejemplo.
+            #- StripPrefix=0
+
+        # VEHICLE
+        - id: vehicle-service
+          uri: lb://vehicle-service
+          predicates:
+            - Path=/api/v1/vehicles/**
+          #filters:
+            #- StripPrefix=1   # quita solo /api/v1 → el backend recibe /vehicles/**
+
       globalcors:
         corsConfigurations:
           "[/**]":
@@ -51,6 +63,8 @@ springdoc:
     urls:
       - name: IAM Service
         url: /api/v1/authentication/docs
+      - name: Vehicle Service
+        url: /api/v1/vehicles/v3/api-docs
   api-docs:
     enabled: true
 
@@ -59,3 +73,4 @@ logging:
     root: INFO
     org.springframework.cloud.gateway: INFO
     com.netflix.discovery: INFO
+
